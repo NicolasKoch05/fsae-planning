@@ -193,6 +193,7 @@ module.exports = async function handler(req, res) {
     const cachedAt = new Date().toLocaleString('es-AR', {
       day: '2-digit', month: 'short', year: 'numeric',
       hour: '2-digit', minute: '2-digit',
+      timeZone: 'America/Argentina/Buenos_Aires',
     });
     cache[type] = { data, ts: now, cachedAt };
     res.setHeader('X-Cache', 'MISS');
