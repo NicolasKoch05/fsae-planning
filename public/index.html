@@ -160,10 +160,42 @@
   .footer-r{font-size:12px;color:var(--text3)}
 
   @media(max-width:768px){
+    /* Layout */
     nav,.hero,.section,footer,.sync-bar,.error-banner{padding-left:16px;padding-right:16px}
-    .hero{grid-template-columns:1fr;gap:24px}
-    .hero-stats{flex-direction:row}
-    .cal-day{min-height:80px}
+    nav{height:auto;padding-top:10px;padding-bottom:10px;flex-wrap:wrap;gap:8px}
+    .nav-tags{display:none}
+    #themeBtn{width:30px;height:30px;font-size:14px}
+
+    /* Hero */
+    .hero{grid-template-columns:1fr;gap:16px;padding:24px 16px 20px}
+    .hero h1{font-size:24px}
+    .hero-desc{font-size:13px}
+    .hero-stats{flex-direction:row;gap:16px;justify-content:flex-start}
+    .stat-val{font-size:22px}
+
+    /* Calendario */
+    .section-hdr{flex-direction:column;align-items:flex-start;gap:10px}
+    .controls{width:100%}
+    .month-nav{flex:1}
+    .ctrl-sel{flex:1}
+    .cal-day{min-height:60px;padding:4px 3px}
+    .day-num{font-size:11px;width:18px;height:18px}
+    .ev-chip{font-size:9px;padding:1px 3px}
+    .dow-cell{font-size:9px;padding:6px 2px}
+
+    /* Tareas */
+    .area-hdr{flex-wrap:wrap;gap:6px}
+    .cnt-badges{flex-wrap:wrap;gap:4px}
+    .tasks-table thead{display:none}
+    .tasks-table tbody tr{display:grid;grid-template-columns:1fr auto;gap:2px 8px;padding:10px 14px;border-bottom:1px solid var(--border)}
+    .tasks-table tbody tr:last-child{border-bottom:none}
+    .tasks-table td{padding:0;border:none;display:block}
+    .td-title{font-size:13px;font-weight:600;grid-column:1;grid-row:1}
+    .td-cat{font-size:11px;color:var(--text3);grid-column:1;grid-row:2}
+    .td-due{font-size:11px;grid-column:1;grid-row:3}
+    .tasks-table td:nth-child(4){grid-column:2;grid-row:1;text-align:right}
+    .tasks-table td:nth-child(5){grid-column:2;grid-row:2 / span 2;display:flex;align-items:center;justify-content:flex-end}
+    .empty-row td{display:block!important}
   }
 </style>
 </head>
