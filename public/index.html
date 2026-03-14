@@ -414,9 +414,9 @@ function renderTasks(){
       </div>
       <table class="tasks-table">
         <thead><tr>
-          <th style="width:38%">Tarea</th><th style="width:14%">Categoría</th>
-          <th style="width:12%">Vencimiento</th><th style="width:10%">Prioridad</th>
-          <th style="width:12%">Tipo</th><th style="width:14%">Estado</th>
+          <th style="width:42%">Tarea</th><th style="width:16%">Categoría</th>
+          <th style="width:14%">Vencimiento</th><th style="width:12%">Prioridad</th>
+          <th style="width:16%">Estado</th>
         </tr></thead>
         <tbody id="tb-${area.id}"></tbody>
       </table>`;
@@ -424,7 +424,7 @@ function renderTasks(){
     const tbody=block.querySelector(`#tb-${area.id}`);
     if(!areaTasks.length){
       const tr=document.createElement('tr');tr.className='empty-row';
-      tr.innerHTML=`<td colspan="6">Sin tareas para esta área.</td>`;
+      tr.innerHTML=`<td colspan="5">Sin tareas para esta área.</td>`;
       tbody.appendChild(tr);return;
     }
     areaTasks.forEach(t=>{
@@ -434,14 +434,12 @@ function renderTasks(){
       const prioClass=t.priority==='High'?'prio-high':t.priority==='Medium'?'prio-medium':'prio-low';
       const prioLabel=t.priority==='High'?'Alta':t.priority==='Medium'?'Media':'Baja';
       const sc=STATUS_CLASS[t.status]||'todo';
-      const typeSty=t.due?'background:#f7f7f8;color:#6b7280;border:1px solid #e5e7eb':'background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe';
       const tr=document.createElement('tr');
       tr.innerHTML=`
         <td class="td-title">${t.title}</td>
         <td class="td-cat">${t.category||'—'}</td>
         <td class="td-due${isOverdue?' overdue':''}">${dueLabel}${isOverdue?' ⚠':''}</td>
         <td><span class="prio-badge ${prioClass}">${prioLabel}</span></td>
-        <td><span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:3px;${typeSty}">${t.due?'Puntual':'Recurrente'}</span></td>
         <td><select class="status-sel ${sc}" data-id="${t.id}">
           <option value="To do"      ${t.status==='To do'?'selected':''}>Por hacer</option>
           <option value="In progress"${t.status==='In progress'?'selected':''}>En proceso</option>
