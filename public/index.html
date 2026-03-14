@@ -173,23 +173,33 @@
     .hero-stats{flex-direction:row;gap:16px;justify-content:flex-start}
     .stat-val{font-size:22px}
 
-    /* Calendario — lista en móvil */
+    /* Calendario — carrusel por semana en móvil */
     .section-hdr{flex-direction:column;align-items:flex-start;gap:10px}
     .controls{width:100%;display:flex;gap:8px}
     .month-nav{flex:1}
     .ctrl-sel{flex:1}
     #calCard{display:none}
     #calList{display:block!important}
-    .cal-list-empty{padding:20px;text-align:center;font-size:13px;color:var(--text3)}
-    .cal-list-day{border-bottom:1px solid var(--border);padding:10px 14px;display:flex;gap:12px;align-items:flex-start}
-    .cal-list-day:last-child{border-bottom:none}
-    .cal-list-date{min-width:44px;text-align:center;flex-shrink:0}
-    .cal-list-dnum{font-size:20px;font-weight:700;line-height:1;color:var(--text)}
-    .cal-list-dwk{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-top:2px}
-    .cal-list-date.today .cal-list-dnum{background:#3b82f6;color:#fff;border-radius:50%;width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center}
-    .cal-list-events{display:flex;flex-direction:column;gap:4px;flex:1}
-    .cal-list-chip{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;padding:4px 8px;border-radius:4px}
-    .cal-list-chip .ev-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+    /* DOW header fijo */
+    .car-dow{display:grid;grid-template-columns:repeat(7,1fr);background:var(--bg-soft);border:1px solid var(--border);border-bottom:none;border-radius:var(--radius) var(--radius) 0 0}
+    .car-dow-cell{padding:7px 2px;text-align:center;font-size:10px;font-weight:600;color:var(--text3);letter-spacing:.06em;text-transform:uppercase}
+    /* Carrusel */
+    .car-track{overflow-x:scroll;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;display:flex;border:1px solid var(--border);border-radius:0 0 var(--radius) var(--radius);scrollbar-width:none}
+    .car-track::-webkit-scrollbar{display:none}
+    .car-week{min-width:100%;display:grid;grid-template-columns:repeat(7,1fr);scroll-snap-align:start;flex-shrink:0}
+    .car-day{border-right:1px solid var(--border);border-top:1px solid var(--border);min-height:100px;padding:6px 4px;background:var(--bg)}
+    .car-day:nth-child(7n){border-right:none}
+    .car-day.other{background:var(--bg-soft)}
+    .car-day.we{background:var(--bg-soft)}
+    .car-day.past{background:var(--bg-soft)}
+    .car-day.today-day{background:#1a2744}
+    .car-dnum{font-size:12px;font-weight:600;color:var(--text2);width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;margin-bottom:3px}
+    .car-dnum.tod{background:#3b82f6;color:#fff}
+    .car-day.other .car-dnum{color:var(--text3)}
+    /* Dots */
+    .car-dots{display:flex;justify-content:center;gap:5px;padding:8px 0 4px}
+    .car-dot{width:6px;height:6px;border-radius:50%;background:var(--border-strong);transition:background .2s}
+    .car-dot.active{background:var(--text2)}
 
     /* Tareas — cards en lugar de tabla */
     .area-hdr{flex-wrap:wrap;gap:6px}
@@ -398,42 +408,89 @@ async function fetchBackend(type, force=false){
 
 const DAYS_ES=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
 
-// ── Render calendario lista (móvil) ───────────────
+// ── Render calendario carrusel (móvil) ────────────
 function renderCalendarList(){
-  const list=document.getElementById('calList');
+  const wrap=document.getElementById('calList');
+  wrap.innerHTML='';
+  if(window.innerWidth>768) return;
+
   const y=2026,m=curMonth;
   const dim=new Date(y,m+1,0).getDate();
-  list.innerHTML='';
-  let hasAny=false;
-  for(let d=1;d<=dim;d++){
-    const dateStr=`${y}-${pad(m+1)}-${pad(d)}`;
-    const evs=(calEvents[dateStr]||[]).filter(ev=>calFilter==='all'||ev.area===calFilter);
-    if(!evs.length) continue;
-    hasAny=true;
-    const dt=new Date(y,m,d);
-    const isToday=dt.toDateString()===TODAY.toDateString();
-    const isPast=dt<TODAY;
-    const row=document.createElement('div');
-    row.className='cal-list-day';
-    row.innerHTML=`
-      <div class="cal-list-date${isToday?' today':''}">
-        <div class="cal-list-dnum">${d}</div>
-        <div class="cal-list-dwk">${DAYS_ES[dt.getDay()]}</div>
-      </div>
-      <div class="cal-list-events"></div>`;
-    const evContainer=row.querySelector('.cal-list-events');
-    evs.forEach(ev=>{
-      const chip=document.createElement('div');
-      chip.className='cal-list-chip'+(isPast?' past-ev':'');
-      chip.style.background=ev.hex+'18';chip.style.color=ev.hex;
-      chip.innerHTML=`<span class="ev-dot" style="background:${ev.hex}"></span>${ev.s?`<span style="font-weight:600">${ev.s}</span>`:''}${ev.title}`;
-      evContainer.appendChild(chip);
+  const firstDow=new Date(y,m,1).getDay();
+  const prevDim=new Date(y,m,0).getDate();
+
+  // Construir celdas (padding + días del mes + padding)
+  const cells=[];
+  for(let i=0;i<firstDow;i++) cells.push({day:prevDim-firstDow+1+i,real:false});
+  for(let d=1;d<=dim;d++) cells.push({day:d,real:true});
+  const trail=(firstDow+dim)%7===0?0:7-(firstDow+dim)%7;
+  for(let i=1;i<=trail;i++) cells.push({day:i,real:false});
+
+  // Agrupar en semanas
+  const weeks=[];
+  for(let i=0;i<cells.length;i+=7) weeks.push(cells.slice(i,i+7));
+
+  // Header DOW
+  const dow=document.createElement('div');
+  dow.className='car-dow';
+  DAYS_ES.forEach(d=>{const c=document.createElement('div');c.className='car-dow-cell';c.textContent=d;dow.appendChild(c);});
+  wrap.appendChild(dow);
+
+  // Track
+  const track=document.createElement('div');
+  track.className='car-track';
+
+  weeks.forEach(week=>{
+    const weekEl=document.createElement('div');
+    weekEl.className='car-week';
+    week.forEach(cell=>{
+      const el=document.createElement('div');
+      if(!cell.real){el.className='car-day other';el.innerHTML=`<span class="car-dnum" style="color:var(--text3)">${cell.day}</span>`;weekEl.appendChild(el);return;}
+      const dt=new Date(y,m,cell.day);
+      const isPast=dt<TODAY;
+      const isWE=dt.getDay()===0||dt.getDay()===6;
+      const isToday=dt.toDateString()===TODAY.toDateString();
+      let cls='car-day';
+      if(isPast&&!isToday) cls+=' past';
+      else if(isWE&&!isToday) cls+=' we';
+      if(isToday) cls+=' today-day';
+      el.className=cls;
+      const numEl=document.createElement('span');
+      numEl.className='car-dnum'+(isToday?' tod':'');
+      numEl.textContent=cell.day;
+      el.appendChild(numEl);
+      const dateStr=`${y}-${pad(m+1)}-${pad(cell.day)}`;
+      (calEvents[dateStr]||[]).filter(ev=>calFilter==='all'||ev.area===calFilter).forEach(ev=>{
+        const chip=document.createElement('div');
+        chip.className='ev-chip'+(isPast?' past-ev':'');
+        chip.style.background=ev.hex+'18';chip.style.color=ev.hex;
+        chip.innerHTML=`<span class="ev-dot" style="background:${ev.hex}"></span><span class="ev-label">${ev.s?ev.s+' ':''}${ev.title}</span>`;
+        el.appendChild(chip);
+      });
+      weekEl.appendChild(el);
     });
-    list.appendChild(row);
-  }
-  if(!hasAny){
-    list.innerHTML=`<div class="cal-list-empty">Sin eventos este mes</div>`;
-  }
+    track.appendChild(weekEl);
+  });
+  wrap.appendChild(track);
+
+  // Dots de posición
+  const dots=document.createElement('div');
+  dots.className='car-dots';
+  weeks.forEach((_,i)=>{const d=document.createElement('div');d.className='car-dot'+(i===0?' active':'');dots.appendChild(d);});
+  wrap.appendChild(dots);
+
+  // Scroll → actualizar dot activo
+  // Ir a la semana que contiene hoy
+  const todayWeek=weeks.findIndex(w=>w.some(c=>c.real&&new Date(y,m,c.day).toDateString()===TODAY.toDateString()));
+  const startWeek=todayWeek>=0?todayWeek:0;
+
+  track.addEventListener('scroll',()=>{
+    const idx=Math.round(track.scrollLeft/track.offsetWidth);
+    dots.querySelectorAll('.car-dot').forEach((d,i)=>d.classList.toggle('active',i===idx));
+  },{passive:true});
+
+  // Scroll inicial a semana de hoy (sin animación)
+  requestAnimationFrame(()=>{track.scrollLeft=startWeek*track.offsetWidth;});
 }
 
 // ── Render calendario ─────────────────────────────
