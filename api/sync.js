@@ -8,10 +8,12 @@ const GCAL_ICAL_URL =
 const NOTION_TOKEN = process.env.NOTION_TOKEN;
 
 const NOTION_DATABASES = [
-  { id: '2cfd1b4deb148077ab35f34f0c869289', area: 'electronica' },
-  { id: '2dad1b4deb148002b73bd77d20d691a7', area: 'redes' },
-  { id: '2d1d1b4deb1480479003c147f1dbf3b3', area: 'diseno' },
-  { id: '2fed1b4deb14802a999ae1a506597ce7', area: 'simulacion' },
+  { id: '2cbd1b4d-eb14-8103-9735-e5de08c86c08', area: 'electronica' },  // To-Do List
+  { id: '2dad1b4d-eb14-8034-a989-fde5b543582c', area: 'redes' },         // To-Do List Redes
+  { id: '2dad1b4d-eb14-8066-b7e2-eff3c37e8270', area: 'redes' },         // To-Do List (2)
+  { id: '2dad1b4d-eb14-8069-b43c-f336b423abad', area: 'diseno' },        // To-Do List (4)
+  { id: '2dad1b4d-eb14-8040-9ee8-d9b56cd5b415', area: 'diseno' },        // To-Do List (5)
+  { id: '2fed1b4d-eb14-8119-95b6-d727277e914f', area: 'simulacion' },    // To-Do List (5)
 ];
 
 // ── iCal parser ───────────────────────────────────────────────────────────────
@@ -117,7 +119,7 @@ async function queryNotionDB(dbId, area) {
 
       // Categoría
       const catProp = p.Category || p.Categoría || p.Categoria || p.Type || p.Tipo;
-      const category = catProp?.select?.name || catProp?.multi_select?.[0]?.name || '';
+      const category = catProp?.multi_select?.map(x => x.name).join(', ') || catProp?.select?.name || '';
 
       tasks.push({
         id: page.url,
