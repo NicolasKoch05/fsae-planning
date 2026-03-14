@@ -1,0 +1,6 @@
+{
+  "name": "fsae-utnba-backend",
+  "version": "1.0.0",
+  "description": "Backend proxy para la página de planificación FSAE UTN FRBA",
+  "private": true
+}

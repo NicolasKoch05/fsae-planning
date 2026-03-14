@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UTN FRBA Motorsport — Planificación 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  /* ─── CAMBIÁ ESTA LÍNEA con tu URL de Vercel después de deployar ─── */
+  /* Se configura en el JS abajo como BACKEND_URL */
+
+  :root {
+    --bg:#fff;--bg-soft:#f7f7f8;--bg-subtle:#f0f0f2;
+    --border:#e4e4e8;--border-strong:#cacace;
+    --text:#111113;--text2:#56565e;--text3:#9898a6;
+    --radius:8px;--shadow:0 1px 2px rgba(0,0,0,.06),0 1px 3px rgba(0,0,0,.04);
+    --c-electronica:#2563eb;--c-diseno:#059669;
+    --c-fabricacion:#d97706;--c-redes:#7c3aed;
+    --c-cnc:#0891b2;--c-simulacion:#ea580c;
+    --c-reunion:#64748b;
+  }
+  .dark {
+    --bg:#0f1117;--bg-soft:#181c27;--bg-subtle:#1e2333;
+    --border:#2a2f3e;--border-strong:#353b4e;
+    --text:#e8eaf0;--text2:#8b92a8;--text3:#555e7a;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 1px 3px rgba(0,0,0,.2);
+    --c-electronica:#4d8ef5;--c-diseno:#34c77a;
+    --c-fabricacion:#f5a623;--c-redes:#a78bfa;
+    --c-cnc:#22d3ee;--c-simulacion:#fb923c;
+    --c-reunion:#94a3b8;
+  }
+  .dark body { background:var(--bg); color:var(--text); }
+  .dark nav { background:rgba(15,17,23,.96); }
+  .dark .cal-day { background:var(--bg); }
+  .dark .cal-day.other,.dark .cal-day.we { background:var(--bg-soft); }
+  .dark .cal-day.today-day { background:#1e2d4a; }
+  .dark .cal-day.past:not(.today-day) { background:#0d1018; }
+  .dark .cal-day.past.we { background:#0e1220; }
+  .dark .tasks-table tbody tr:hover { background:var(--bg-soft); }
+  .dark .area-hdr,.dark .tasks-table thead th { background:var(--bg-soft); }
+  .dark footer { background:var(--bg-soft); }
+  .dark .sync-bar { background:var(--bg-soft); }
+  .dark .loading-placeholder { border-color:var(--border); }
+  .dark .error-banner { background:#2d1515; border-color:#7f2020; color:#f87171; }
+  .dark .status-sel.todo { background-color:#2d1515; color:#f87171; }
+  .dark .status-sel.inprogress { background-color:#2d2010; color:#fbbf24; }
+  .dark .status-sel.done { background-color:#0f2d1e; color:#4ade80; }
+  .dark .prio-high { background:#2d1515; color:#f87171; }
+  .dark .prio-medium { background:#2d2010; color:#fbbf24; }
+  .dark .prio-low { background:#1e2030; color:#94a3b8; }
+  .dark .cnt { filter: brightness(0.85) saturate(0.9); }
+  .dark .nav-logo img { filter: brightness(0.9); }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+
+  nav{position:sticky;top:0;z-index:200;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 40px;height:60px;display:flex;align-items:center;justify-content:space-between}
+  .nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none}
+  .nav-logo img{height:34px;width:auto}
+  .nav-brand-main{font-size:13px;font-weight:600;color:var(--text);letter-spacing:-.01em;line-height:1.2}
+  .nav-brand-sub{font-size:11px;color:var(--text3)}
+  .nav-tags{display:flex;gap:6px}
+  .nav-tag{font-size:11px;font-weight:500;color:var(--text2);background:var(--bg-soft);border:1px solid var(--border);padding:3px 9px;border-radius:20px}
+
+  .sync-bar{display:flex;align-items:center;gap:8px;padding:7px 40px;background:var(--bg-soft);border-bottom:1px solid var(--border);font-size:11px;color:var(--text3)}
+  .sync-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;transition:background .3s}
+  .sync-dot.loading{background:#d97706;animation:pulse 1s infinite}
+  .sync-dot.ok{background:#059669}
+  .sync-dot.err{background:#dc2626}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+  .hero{padding:48px 40px 40px;border-bottom:1px solid var(--border);display:grid;grid-template-columns:1fr auto;gap:48px;align-items:end}
+  .hero-eyebrow{font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px}
+  .hero h1{font-size:clamp(24px,3vw,36px);font-weight:700;letter-spacing:-.03em;line-height:1.1;margin-bottom:10px}
+  .hero-desc{font-size:14px;color:var(--text2);max-width:460px;line-height:1.65}
+  .hero-stats{display:flex;flex-direction:column;gap:20px;align-items:flex-end}
+  .stat-val{font-size:30px;font-weight:700;letter-spacing:-.03em;line-height:1}
+  .stat-lbl{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-top:2px}
+
+  .section{padding:0 40px}
+  .section-hdr{padding:26px 0 14px;display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .section-title{font-size:16px;font-weight:700;letter-spacing:-.02em}
+  .section-sub{font-size:12px;color:var(--text3);margin-top:2px}
+  .divider{border:none;border-top:1px solid var(--border);margin:0}
+
+  .controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .month-nav{display:flex;align-items:stretch;border:1px solid var(--border-strong);border-radius:var(--radius);overflow:hidden}
+  .btn-nav{background:var(--bg);border:none;width:32px;cursor:pointer;font-size:13px;color:var(--text2);display:flex;align-items:center;justify-content:center;transition:background .1s}
+  .btn-nav:hover{background:var(--bg-soft)}
+  .btn-nav:first-child{border-right:1px solid var(--border)}
+  .btn-nav:last-child{border-left:1px solid var(--border)}
+  .month-display{padding:0 14px;font-size:13px;font-weight:600;color:var(--text);min-width:130px;text-align:center;display:flex;align-items:center;justify-content:center}
+  .ctrl-sel{height:32px;padding:0 26px 0 10px;border:1px solid var(--border-strong);border-radius:var(--radius);font-size:12px;font-weight:500;color:var(--text2);background:var(--bg);font-family:'Inter',sans-serif;cursor:pointer;outline:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%239898a6' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center}
+  .ctrl-sel:hover,.ctrl-sel:focus{border-color:var(--border-strong);color:var(--text)}
+
+  .legend{display:flex;flex-wrap:wrap;gap:14px;padding:0 0 14px}
+  .leg-item{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:500;color:var(--text2)}
+  .leg-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+
+  .cal-card{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+  .cal-dow{display:grid;grid-template-columns:repeat(7,1fr);background:var(--bg-soft);border-bottom:1px solid var(--border)}
+  .dow-cell{padding:9px 6px;text-align:center;font-size:10px;font-weight:600;color:var(--text3);letter-spacing:.08em;text-transform:uppercase}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr)}
+  .cal-day{border-right:1px solid var(--border);border-bottom:1px solid var(--border);min-height:108px;padding:7px 5px 5px;background:var(--bg)}
+  .cal-day:nth-child(7n){border-right:none}
+  .cal-day.other{background:var(--bg-soft)}
+  .cal-day.we{background:var(--bg-soft)}
+  .cal-day.today-day{background:#eff6ff}
+  .cal-day.past:not(.today-day){background:#fafafa}
+  .cal-day.past.we{background:#f5f5f6}
+  .day-num{font-size:12px;font-weight:600;color:var(--text2);width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;margin-bottom:4px;line-height:1}
+  .day-num.tod{background:var(--text);color:#fff}
+  .cal-day.other .day-num{color:var(--text3)}
+  .ev-chip{display:flex;align-items:flex-start;gap:4px;padding:2px 5px;border-radius:3px;font-size:10.5px;font-weight:500;margin-bottom:2px;overflow:hidden;cursor:default;line-height:1.4}
+  .ev-chip:hover{opacity:.8}
+  .ev-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;margin-top:3px}
+  .ev-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ev-chip.past-ev{opacity:.4}
+  .ev-chip.past-ev .ev-label{text-decoration:line-through;text-decoration-thickness:1px;text-decoration-color:currentColor}
+
+  .loading-placeholder{height:400px;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:13px;border:1px solid var(--border);border-radius:var(--radius)}
+
+  .area-block{margin-bottom:18px;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+  .area-hdr{display:flex;align-items:center;gap:10px;padding:11px 16px;background:var(--bg-soft);border-bottom:1px solid var(--border)}
+  .area-bar{width:3px;height:16px;border-radius:2px;flex-shrink:0}
+  .area-name{font-size:13px;font-weight:700;letter-spacing:-.01em}
+  .cnt-badges{display:flex;gap:5px;margin-left:auto;align-items:center}
+  .cnt{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px}
+  .tasks-table{width:100%;border-collapse:collapse}
+  .tasks-table thead th{padding:8px 14px;text-align:left;font-size:10px;font-weight:600;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;background:var(--bg-soft);border-bottom:1px solid var(--border);white-space:nowrap}
+  .tasks-table tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
+  .tasks-table tbody tr:last-child{border-bottom:none}
+  .tasks-table tbody tr:hover{background:var(--bg-soft)}
+  .tasks-table td{padding:10px 14px;font-size:13px;vertical-align:middle}
+  .td-title{font-weight:500;color:var(--text)}
+  .td-cat{font-size:11px;color:var(--text2)}
+  .td-due{font-size:12px;color:var(--text2);white-space:nowrap}
+  .td-due.overdue{color:#dc2626;font-weight:600}
+  .prio-badge{font-size:10px;font-weight:600;padding:2px 7px;border-radius:3px}
+  .prio-high{background:#fef2f2;color:#dc2626}
+  .prio-medium{background:#fffbeb;color:#d97706}
+  .prio-low{background:#f7f7f8;color:#6b7280}
+  .status-sel{display:inline-flex;align-items:center;padding:4px 22px 4px 8px;border-radius:4px;border:none;cursor:pointer;font-size:11px;font-weight:600;font-family:'Inter',sans-serif;appearance:none;outline:none;background-repeat:no-repeat;background-position:right 7px center}
+  .status-sel.todo{background-color:#fef2f2;color:#dc2626;background-image:url("data:image/svg+xml,%3Csvg width='8' height='5' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l3 3 3-3' stroke='%23dc2626' stroke-width='1.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")}
+  .status-sel.inprogress{background-color:#fffbeb;color:#d97706;background-image:url("data:image/svg+xml,%3Csvg width='8' height='5' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l3 3 3-3' stroke='%23d97706' stroke-width='1.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")}
+  .status-sel.done{background-color:#f0fdf4;color:#059669;background-image:url("data:image/svg+xml,%3Csvg width='8' height='5' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l3 3 3-3' stroke='%23059669' stroke-width='1.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")}
+  .empty-row td{padding:16px 14px;font-size:12px;color:var(--text3);font-style:italic;text-align:center}
+
+  .error-banner{margin:0 40px 16px;padding:12px 16px;background:#fef2f2;border:1px solid #fecaca;border-radius:var(--radius);font-size:12px;color:#dc2626;display:none}
+
+  footer{border-top:1px solid var(--border);padding:20px 40px;display:flex;align-items:center;justify-content:space-between;background:var(--bg-soft);margin-top:48px}
+  .footer-l{display:flex;align-items:center;gap:10px}
+  .footer-l img{height:22px;opacity:.4}
+  .footer-txt{font-size:12px;color:var(--text3)}
+  .footer-r{font-size:12px;color:var(--text3)}
+
+  @media(max-width:768px){
+    nav,.hero,.section,footer,.sync-bar,.error-banner{padding-left:16px;padding-right:16px}
+    .hero{grid-template-columns:1fr;gap:24px}
+    .hero-stats{flex-direction:row}
+    .cal-day{min-height:80px}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="https://mgazario.github.io/" target="_blank">
+    <img src="https://mgazario.github.io/assets/img/logo.png" alt="UTN BA Motorsport" onerror="this.style.display='none'">
+    <div>
+      <div class="nav-brand-main">UTN FRBA Motorsport</div>
+      <div class="nav-brand-sub">Formula SAE · Buenos Aires</div>
+    </div>
+  </a>
+  <div style="display:flex;align-items:center;gap:10px">
+    <div class="nav-tags">
+      <span class="nav-tag">Temporada 2026</span>
+      <span class="nav-tag">Planificación</span>
+    </div>
+    <button id="themeBtn" onclick="toggleTheme()" title="Cambiar modo claro/oscuro"
+      style="background:none;border:1px solid var(--border-strong);border-radius:20px;
+             width:34px;height:34px;cursor:pointer;font-size:16px;display:flex;
+             align-items:center;justify-content:center;color:var(--text2);
+             transition:background .15s,border-color .15s;flex-shrink:0">🌙</button>
+  </div>
+</nav>
+
+<div class="sync-bar" style="justify-content:space-between">
+  <div style="display:flex;align-items:center;gap:8px">
+    <div class="sync-dot loading" id="syncDot"></div>
+    <span id="syncText">Sincronizando con Google Calendar y Notion…</span>
+  </div>
+  <button id="forceRefreshBtn" onclick="forceRefresh()" style="display:none;font-size:11px;font-weight:500;color:var(--text2);background:var(--bg);border:1px solid var(--border-strong);padding:3px 10px;border-radius:20px;cursor:pointer" title="Forzar actualización desde Google Calendar y Notion">↺ Actualizar ahora</button>
+</div>
+
+<section class="hero">
+  <div>
+    <div class="hero-eyebrow">Cronograma de actividades · Formula SAE</div>
+    <h1>Calendario<br>+ Gantt</h1>
+    <p class="hero-desc">Cronograma integrado de actividades, reuniones y hitos del equipo FSAE UTN FRBA. Se actualiza automáticamente al cargar la página.</p>
+  </div>
+  <div class="hero-stats">
+    <div><div class="stat-val" id="statTasks">—</div><div class="stat-lbl">Tareas activas</div></div>
+    <div><div class="stat-val">6</div><div class="stat-lbl">Áreas del equipo</div></div>
+    <div><div class="stat-val">2027</div><div class="stat-lbl">Meta FSAE Brasil</div></div>
+  </div>
+</section>
+
+<div class="error-banner" id="errorBanner"></div>
+
+<!-- CALENDARIO -->
+<div class="section">
+  <div class="section-hdr">
+    <div>
+      <div class="section-title">Calendario de reuniones y actividades</div>
+      <div class="section-sub">Google Calendar nikoch@frba.utn.edu.ar · días pasados tachados</div>
+    </div>
+    <div class="controls">
+      <div class="month-nav">
+        <button class="btn-nav" id="prev">&#8592;</button>
+        <div class="month-display" id="mLabel">Marzo 2026</div>
+        <button class="btn-nav" id="next">&#8594;</button>
+      </div>
+      <select class="ctrl-sel" id="calFilter">
+        <option value="all">Todas las áreas</option>
+        <option value="electronica">Electrónica</option>
+        <option value="fabricacion">Fabricación</option>
+        <option value="diseno">Diseño</option>
+        <option value="redes">Redes</option>
+        <option value="reunion">Reuniones</option>
+      </select>
+    </div>
+  </div>
+  <div class="legend" id="calLegend"></div>
+  <div class="cal-card">
+    <div class="cal-dow">
+      <div class="dow-cell">Dom</div><div class="dow-cell">Lun</div><div class="dow-cell">Mar</div>
+      <div class="dow-cell">Mié</div><div class="dow-cell">Jue</div><div class="dow-cell">Vie</div><div class="dow-cell">Sáb</div>
+    </div>
+    <div class="cal-grid" id="calGrid">
+      <div style="grid-column:1/-1" class="loading-placeholder">Cargando calendario…</div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider" style="margin:32px 40px 0">
+
+<!-- TAREAS -->
+<div class="section" style="padding-bottom:0">
+  <div class="section-hdr">
+    <div>
+      <div class="section-title">Tareas por área</div>
+      <div class="section-sub">Desde Notion · tareas con más de 2 semanas vencidas se ocultan automáticamente</div>
+    </div>
+    <div class="controls">
+      <select class="ctrl-sel" id="taskAreaSel">
+        <option value="all">Todas las áreas</option>
+        <option value="electronica">Electrónica</option>
+        <option value="diseno">Diseño</option>
+        <option value="fabricacion">Fabricación</option>
+        <option value="redes">Redes</option>
+        <option value="simulacion">Simulación</option>
+        <option value="cnc">CNC</option>
+      </select>
+      <select class="ctrl-sel" id="taskStatusSel">
+        <option value="all">Todos los estados</option>
+        <option value="To do">Por hacer</option>
+        <option value="In progress">En proceso</option>
+        <option value="Done">Terminadas</option>
+      </select>
+    </div>
+  </div>
+</div>
+<div class="section" id="tasksContainer" style="padding-bottom:0">
+  <div class="loading-placeholder" style="margin-bottom:48px">Cargando tareas…</div>
+</div>
+
+<footer>
+  <div class="footer-l">
+    <img src="https://mgazario.github.io/assets/img/logo.png" alt="">
+    <span class="footer-txt">UTN FRBA Motorsport · Formula SAE · Buenos Aires, Argentina</span>
+  </div>
+  <div class="footer-r">motorsports@frba.utn.edu.ar</div>
+</footer>
+
+<script>
+// ════════════════════════════════════════════════════
+// ⚙️  CONFIGURACIÓN — cambiá esto con tu URL de Vercel
+// ════════════════════════════════════════════════════
+const BACKEND_URL = 'https://TU-PROYECTO.vercel.app/api/sync';
+// ════════════════════════════════════════════════════
+
+const AREAS = [
+  {id:'electronica',label:'Electrónica', hex:'#2563eb'},
+  {id:'diseno',     label:'Diseño',      hex:'#059669'},
+  {id:'fabricacion',label:'Fabricación', hex:'#d97706'},
+  {id:'redes',      label:'Redes',       hex:'#7c3aed'},
+  {id:'simulacion', label:'Simulación',  hex:'#ea580c'},
+  {id:'cnc',        label:'CNC',         hex:'#0891b2'},
+];
+const REUNION_HEX = '#64748b';
+const MONTHS_ES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const STATUS_CLASS={'To do':'todo','In progress':'inprogress','Done':'done'};
+const TASKS_LS='fsae_statuses_v4';
+const TODAY=new Date(); TODAY.setHours(0,0,0,0);
+const TWO_WEEKS_AGO=new Date(TODAY); TWO_WEEKS_AGO.setDate(TWO_WEEKS_AGO.getDate()-14);
+
+function pad(n){return String(n).padStart(2,'0')}
+function getArea(id){return AREAS.find(a=>a.id===id)||{hex:'#888',label:'—'}}
+
+let savedStatuses={};
+try{savedStatuses=JSON.parse(localStorage.getItem(TASKS_LS)||'{}')}catch(e){}
+function saveStatus(id,s){savedStatuses[id]=s;try{localStorage.setItem(TASKS_LS,JSON.stringify(savedStatuses))}catch(e){}}
+
+let curMonth=2, calFilter='all', taskAreaFilter='all', taskStatusFilter='all';
+let calEvents={}, tasks=[];
+
+function classifyEvent(title){
+  const t=title.toLowerCase();
+  if(t.includes('electr')) return 'electronica';
+  if(t.includes('taller')||t.includes('chasis')||t.includes('parilla')||t.includes('fabricac')||t.includes('cockpit')||t.includes('matriz')) return 'fabricacion';
+  if(t.includes('diseñ')||t.includes('mockup')) return 'diseno';
+  if(t.includes('redes')||t.includes('banner')||t.includes('poster')) return 'redes';
+  if(t.includes('simulac')) return 'simulacion';
+  return 'reunion';
+}
+
+// Leyenda
+document.getElementById('calLegend').innerHTML=[
+  ...AREAS,{id:'reunion',label:'Reuniones',hex:REUNION_HEX}
+].map(a=>`<div class="leg-item"><div class="leg-dot" style="background:${a.hex}"></div>${a.label}</div>`).join('');
+
+// ── Fetch al backend ──────────────────────────────
+async function fetchBackend(type, force=false){
+  const r=await fetch(BACKEND_URL,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({type, force})
+  });
+  if(!r.ok) throw new Error(`Backend ${r.status}: ${await r.text()}`);
+  return r.json();
+}
+
+// ── Render calendario ─────────────────────────────
+function renderCalendar(){
+  const y=2026,m=curMonth;
+  const dim=new Date(y,m+1,0).getDate();
+  const firstDow=new Date(y,m,1).getDay();
+  const prevDim=new Date(y,m,0).getDate();
+  const grid=document.getElementById('calGrid');
+  grid.innerHTML='';
+
+  function makeCell(d,cls,real){
+    const el=document.createElement('div');
+    el.className='cal-day'+(cls?' '+cls:'');
+    if(!real){el.innerHTML=`<span class="day-num" style="color:var(--text3)">${d}</span>`;return el;}
+    const dt=new Date(y,m,d);
+    const isPast=dt<TODAY,isWE=dt.getDay()===0||dt.getDay()===6,isTod=dt.toDateString()===TODAY.toDateString();
+    if(isPast) el.classList.add('past');
+    if(isWE&&!isTod) el.classList.add('we');
+    if(isTod) el.classList.add('today-day');
+    const numEl=document.createElement('span');
+    numEl.className='day-num'+(isTod?' tod':'');
+    numEl.textContent=d;
+    el.appendChild(numEl);
+    const dateStr=`${y}-${pad(m+1)}-${pad(d)}`;
+    (calEvents[dateStr]||[])
+      .filter(ev=>calFilter==='all'||ev.area===calFilter)
+      .forEach(ev=>{
+        const chip=document.createElement('div');
+        chip.className='ev-chip'+(isPast?' past-ev':'');
+        chip.style.background=ev.hex+'18';chip.style.color=ev.hex;
+        chip.title=`${ev.s||''}${ev.e?'–'+ev.e:''} · ${ev.title}`;
+        chip.innerHTML=`<span class="ev-dot" style="background:${ev.hex}"></span><span class="ev-label">${ev.s?ev.s+' ':''}${ev.title}</span>`;
+        el.appendChild(chip);
+      });
+    return el;
+  }
+  for(let i=0;i<firstDow;i++) grid.appendChild(makeCell(prevDim-firstDow+1+i,'other',false));
+  for(let d=1;d<=dim;d++) grid.appendChild(makeCell(d,'',true));
+  const trail=(firstDow+dim)%7===0?0:7-(firstDow+dim)%7;
+  for(let i=1;i<=trail;i++) grid.appendChild(makeCell(i,'other',false));
+}
+
+// ── Render tareas ─────────────────────────────────
+function renderTasks(){
+  const container=document.getElementById('tasksContainer');
+  container.innerHTML='';
+  const areasToShow=taskAreaFilter==='all'?AREAS:AREAS.filter(a=>a.id===taskAreaFilter);
+  const visibleTasks=tasks.filter(t=>{
+    if(!t.due) return true;
+    return new Date(t.due+'T12:00:00')>=TWO_WEEKS_AGO;
+  });
+  document.getElementById('statTasks').textContent=visibleTasks.filter(t=>t.status!=='Done').length;
+
+  areasToShow.forEach(area=>{
+    let areaTasks=visibleTasks.filter(t=>t.area===area.id);
+    if(taskStatusFilter!=='all') areaTasks=areaTasks.filter(t=>t.status===taskStatusFilter);
+    const all=tasks.filter(t=>t.area===area.id);
+    const todo=all.filter(t=>t.status==='To do').length;
+    const prog=all.filter(t=>t.status==='In progress').length;
+    const done=all.filter(t=>t.status==='Done').length;
+    const block=document.createElement('div');block.className='area-block';
+    block.innerHTML=`
+      <div class="area-hdr">
+        <div class="area-bar" style="background:${area.hex}"></div>
+        <span class="area-name">${area.label}</span>
+        <div class="cnt-badges">
+          <span class="cnt" style="background:#fef2f2;color:#dc2626">${todo} por hacer</span>
+          <span class="cnt" style="background:#fffbeb;color:#d97706">${prog} en proceso</span>
+          <span class="cnt" style="background:#f0fdf4;color:#059669">${done} listas</span>
+        </div>
+      </div>
+      <table class="tasks-table">
+        <thead><tr>
+          <th style="width:38%">Tarea</th><th style="width:14%">Categoría</th>
+          <th style="width:12%">Vencimiento</th><th style="width:10%">Prioridad</th>
+          <th style="width:12%">Tipo</th><th style="width:14%">Estado</th>
+        </tr></thead>
+        <tbody id="tb-${area.id}"></tbody>
+      </table>`;
+    container.appendChild(block);
+    const tbody=block.querySelector(`#tb-${area.id}`);
+    if(!areaTasks.length){
+      const tr=document.createElement('tr');tr.className='empty-row';
+      tr.innerHTML=`<td colspan="6">Sin tareas para esta área.</td>`;
+      tbody.appendChild(tr);return;
+    }
+    areaTasks.forEach(t=>{
+      const due=t.due?new Date(t.due+'T12:00:00'):null;
+      const isOverdue=due&&due<TODAY&&t.status!=='Done';
+      const dueLabel=due?due.toLocaleDateString('es-AR',{day:'numeric',month:'short'}):'—';
+      const prioClass=t.priority==='High'?'prio-high':t.priority==='Medium'?'prio-medium':'prio-low';
+      const prioLabel=t.priority==='High'?'Alta':t.priority==='Medium'?'Media':'Baja';
+      const sc=STATUS_CLASS[t.status]||'todo';
+      const typeSty=t.due?'background:#f7f7f8;color:#6b7280;border:1px solid #e5e7eb':'background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe';
+      const tr=document.createElement('tr');
+      tr.innerHTML=`
+        <td class="td-title">${t.title}</td>
+        <td class="td-cat">${t.category||'—'}</td>
+        <td class="td-due${isOverdue?' overdue':''}">${dueLabel}${isOverdue?' ⚠':''}</td>
+        <td><span class="prio-badge ${prioClass}">${prioLabel}</span></td>
+        <td><span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:3px;${typeSty}">${t.due?'Puntual':'Recurrente'}</span></td>
+        <td><select class="status-sel ${sc}" data-id="${t.id}">
+          <option value="To do"      ${t.status==='To do'?'selected':''}>Por hacer</option>
+          <option value="In progress"${t.status==='In progress'?'selected':''}>En proceso</option>
+          <option value="Done"       ${t.status==='Done'?'selected':''}>Terminada</option>
+        </select></td>`;
+      tr.querySelector('.status-sel').addEventListener('change',function(){
+        const ns=this.value,idx=tasks.findIndex(x=>x.id===this.dataset.id);
+        if(idx>-1){tasks[idx].status=ns;saveStatus(this.dataset.id,ns);}
+        this.className='status-sel '+(STATUS_CLASS[ns]||'todo');
+        renderTasks();
+      });
+      tbody.appendChild(tr);
+    });
+  });
+}
+
+function setSyncState(s,t){
+  document.getElementById('syncDot').className='sync-dot '+s;
+  document.getElementById('syncText').textContent=t;
+}
+function renderLabel(){document.getElementById('mLabel').textContent=`${MONTHS_ES[curMonth]} 2026`}
+
+// ── INIT ──────────────────────────────────────────
+async function loadData(force=false){
+  setSyncState('loading', force ? 'Actualizando datos frescos…' : 'Sincronizando con Google Calendar y Notion…');
+  document.getElementById('forceRefreshBtn').style.display='none';
+  try {
+    const [calData, notionData] = await Promise.all([
+      fetchBackend('calendar', force),
+      fetchBackend('notion', force)
+    ]);
+
+    // Procesar calendario
+    calEvents={};
+    (calData.events||[]).forEach(ev=>{
+      if(!calEvents[ev.date]) calEvents[ev.date]=[];
+      const area=classifyEvent(ev.title);
+      const hex=area==='reunion'?REUNION_HEX:(getArea(area).hex||'#888');
+      calEvents[ev.date].push({title:ev.title,area,hex,s:ev.start,e:ev.end});
+    });
+
+    // Procesar tareas
+    tasks=(notionData.tasks||[]).map(t=>({...t,status:savedStatuses[t.id]||t.status}));
+
+    // Mostrar info de caché
+    const fromCache = calData._cached || notionData._cached;
+    const cachedAt = calData._cached_at || notionData._cached_at;
+    const isStale = calData._stale || notionData._stale;
+    const ageMin = calData._age_minutes || 0;
+
+    if(fromCache && !isStale){
+      setSyncState('ok', `Caché · actualizado hace ${ageMin}m · (${cachedAt})`);
+    } else if(isStale){
+      setSyncState('ok', `Datos en caché (conexión con fallo) · ${cachedAt}`);
+    } else {
+      setSyncState('ok', `Actualizado en vivo · ${cachedAt}`);
+    }
+
+    document.getElementById('forceRefreshBtn').style.display='block';
+    document.getElementById('errorBanner').style.display='none';
+    renderLabel(); renderCalendar(); renderTasks();
+
+  } catch(err){
+    setSyncState('err','Error de conexión — reintentá más tarde');
+    const b=document.getElementById('errorBanner');
+    b.style.display='block';
+    b.textContent=`No se pudo conectar al servidor: ${err.message}`;
+    document.getElementById('forceRefreshBtn').style.display='none';
+    renderLabel(); renderCalendar(); renderTasks();
+  }
+}
+
+async function init(){ await loadData(false); }
+async function forceRefresh(){ await loadData(true); }
+
+// ── Modo oscuro ─────────────────────────────────────────────────────────────
+function applyTheme(dark){
+  const html=document.documentElement;
+  if(dark){ html.classList.add('dark'); document.getElementById('themeBtn').textContent='☀️'; }
+  else     { html.classList.remove('dark'); document.getElementById('themeBtn').textContent='🌙'; }
+}
+function toggleTheme(){
+  const isDark=document.documentElement.classList.contains('dark');
+  localStorage.setItem('fsae_theme', isDark?'light':'dark');
+  applyTheme(!isDark);
+}
+// Restaurar preferencia guardada (o usar preferencia del sistema)
+(function(){
+  const saved=localStorage.getItem('fsae_theme');
+  const prefersDark=window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(saved ? saved==='dark' : prefersDark);
+})();
+// ────────────────────────────────────────────────────────────────────────────
+
+document.getElementById('prev').onclick=()=>{curMonth=Math.max(2,curMonth-1);renderLabel();renderCalendar()};
+document.getElementById('next').onclick=()=>{curMonth=Math.min(11,curMonth+1);renderLabel();renderCalendar()};
+document.getElementById('calFilter').onchange=e=>{calFilter=e.target.value;renderCalendar()};
+document.getElementById('taskAreaSel').onchange=e=>{taskAreaFilter=e.target.value;renderTasks()};
+document.getElementById('taskStatusSel').onchange=e=>{taskStatusFilter=e.target.value;renderTasks()};
+
+init();
+</script>
+</body>
+</html>
