@@ -173,14 +173,23 @@
     .hero-stats{flex-direction:row;gap:16px;justify-content:flex-start}
     .stat-val{font-size:22px}
 
-    /* Calendario — scroll horizontal para que las celdas tengan espacio real */
+    /* Calendario — lista en móvil */
     .section-hdr{flex-direction:column;align-items:flex-start;gap:10px}
     .controls{width:100%;display:flex;gap:8px}
     .month-nav{flex:1}
     .ctrl-sel{flex:1}
-    .cal-card{overflow-x:auto;-webkit-overflow-scrolling:touch}
-    .cal-dow,.cal-grid{min-width:560px}
-    .cal-day{min-height:90px;padding:5px 4px}
+    #calCard{display:none}
+    #calList{display:block!important}
+    .cal-list-empty{padding:20px;text-align:center;font-size:13px;color:var(--text3)}
+    .cal-list-day{border-bottom:1px solid var(--border);padding:10px 14px;display:flex;gap:12px;align-items:flex-start}
+    .cal-list-day:last-child{border-bottom:none}
+    .cal-list-date{min-width:44px;text-align:center;flex-shrink:0}
+    .cal-list-dnum{font-size:20px;font-weight:700;line-height:1;color:var(--text)}
+    .cal-list-dwk{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-top:2px}
+    .cal-list-date.today .cal-list-dnum{background:#3b82f6;color:#fff;border-radius:50%;width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center}
+    .cal-list-events{display:flex;flex-direction:column;gap:4px;flex:1}
+    .cal-list-chip{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;padding:4px 8px;border-radius:4px}
+    .cal-list-chip .ev-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
 
     /* Tareas — cards en lugar de tabla */
     .area-hdr{flex-wrap:wrap;gap:6px}
@@ -277,7 +286,7 @@
     </div>
   </div>
   <div class="legend" id="calLegend"></div>
-  <div class="cal-card">
+  <div class="cal-card" id="calCard">
     <div class="cal-dow">
       <div class="dow-cell">Dom</div><div class="dow-cell">Lun</div><div class="dow-cell">Mar</div>
       <div class="dow-cell">Mié</div><div class="dow-cell">Jue</div><div class="dow-cell">Vie</div><div class="dow-cell">Sáb</div>
@@ -286,6 +295,7 @@
       <div style="grid-column:1/-1" class="loading-placeholder">Cargando calendario…</div>
     </div>
   </div>
+  <div id="calList" style="display:none"></div>
 </div>
 
 <hr class="divider" style="margin:32px 40px 0">
@@ -384,6 +394,46 @@ async function fetchBackend(type, force=false){
   });
   if(!r.ok) throw new Error(`Backend ${r.status}: ${await r.text()}`);
   return r.json();
+}
+
+const DAYS_ES=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+
+// ── Render calendario lista (móvil) ───────────────
+function renderCalendarList(){
+  const list=document.getElementById('calList');
+  const y=2026,m=curMonth;
+  const dim=new Date(y,m+1,0).getDate();
+  list.innerHTML='';
+  let hasAny=false;
+  for(let d=1;d<=dim;d++){
+    const dateStr=`${y}-${pad(m+1)}-${pad(d)}`;
+    const evs=(calEvents[dateStr]||[]).filter(ev=>calFilter==='all'||ev.area===calFilter);
+    if(!evs.length) continue;
+    hasAny=true;
+    const dt=new Date(y,m,d);
+    const isToday=dt.toDateString()===TODAY.toDateString();
+    const isPast=dt<TODAY;
+    const row=document.createElement('div');
+    row.className='cal-list-day';
+    row.innerHTML=`
+      <div class="cal-list-date${isToday?' today':''}">
+        <div class="cal-list-dnum">${d}</div>
+        <div class="cal-list-dwk">${DAYS_ES[dt.getDay()]}</div>
+      </div>
+      <div class="cal-list-events"></div>`;
+    const evContainer=row.querySelector('.cal-list-events');
+    evs.forEach(ev=>{
+      const chip=document.createElement('div');
+      chip.className='cal-list-chip'+(isPast?' past-ev':'');
+      chip.style.background=ev.hex+'18';chip.style.color=ev.hex;
+      chip.innerHTML=`<span class="ev-dot" style="background:${ev.hex}"></span>${ev.s?`<span style="font-weight:600">${ev.s}</span>`:''}${ev.title}`;
+      evContainer.appendChild(chip);
+    });
+    list.appendChild(row);
+  }
+  if(!hasAny){
+    list.innerHTML=`<div class="cal-list-empty">Sin eventos este mes</div>`;
+  }
 }
 
 // ── Render calendario ─────────────────────────────
@@ -550,7 +600,7 @@ async function loadData(force=false){
 
     document.getElementById('forceRefreshBtn').style.display='block';
     document.getElementById('errorBanner').style.display='none';
-    renderLabel(); renderCalendar(); renderTasks();
+    renderLabel(); renderCalendar(); renderCalendarList(); renderTasks();
 
   } catch(err){
     setSyncState('err','Error de conexión — reintentá más tarde');
@@ -558,7 +608,7 @@ async function loadData(force=false){
     b.style.display='block';
     b.textContent=`No se pudo conectar al servidor: ${err.message}`;
     document.getElementById('forceRefreshBtn').style.display='none';
-    renderLabel(); renderCalendar(); renderTasks();
+    renderLabel(); renderCalendar(); renderCalendarList(); renderTasks();
   }
 }
 
@@ -584,9 +634,9 @@ function toggleTheme(){
 })();
 // ────────────────────────────────────────────────────────────────────────────
 
-document.getElementById('prev').onclick=()=>{curMonth=Math.max(2,curMonth-1);renderLabel();renderCalendar()};
-document.getElementById('next').onclick=()=>{curMonth=Math.min(11,curMonth+1);renderLabel();renderCalendar()};
-document.getElementById('calFilter').onchange=e=>{calFilter=e.target.value;renderCalendar()};
+document.getElementById('prev').onclick=()=>{curMonth=Math.max(2,curMonth-1);renderLabel();renderCalendar();renderCalendarList()};
+document.getElementById('next').onclick=()=>{curMonth=Math.min(11,curMonth+1);renderLabel();renderCalendar();renderCalendarList()};
+document.getElementById('calFilter').onchange=e=>{calFilter=e.target.value;renderCalendar();renderCalendarList()};
 document.getElementById('taskAreaSel').onchange=e=>{taskAreaFilter=e.target.value;renderTasks()};
 document.getElementById('taskStatusSel').onchange=e=>{taskStatusFilter=e.target.value;renderTasks()};
 
